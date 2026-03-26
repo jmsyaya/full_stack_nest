@@ -1,19 +1,19 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { PostUpdatedDTO } from 'src/domain/post/dto/post.dto';
-import { PostRepository } from 'src/repository/post/post.repository';
+import { PostCreateDTO, PostUpdatedDTO } from 'src/domain/post/dto/post.dto';
+import { PostService } from 'src/service/post/post.service';
 
 @Controller('posts') // /posts
 export class PostController {
   // 생성자 주입
-  constructor(private readonly postRepository: PostRepository){;}
+  constructor(private readonly postService: PostService){;}
 
   // 게시글 전체 조회
   @ApiOperation({summary: "게시글 전체 조회"})
   @HttpCode(200)
   @Get("") 
   async getPosts() {
-    return await this.postRepository.findPosts()
+    return await this.postService.getPosts()
   }
 
   // 게시글 단일 조회
@@ -21,7 +21,15 @@ export class PostController {
   @HttpCode(200)
   @Get(":id") // /posts/:id
   async getPost(@Param("id") id: string) {
-    return await this.postRepository.findPostById(Number(id))
+    return await this.postService.getPost(Number(id))
+  }
+
+  // 게시글 생성
+  @ApiOperation({summary: "게시글 생성"})
+  @HttpCode(201)
+  @Post("")
+  async create(@Body() postCreateDTO: PostCreateDTO) {
+    await this.postService.createPost(postCreateDTO)
   }
 
   // 게시글 수정
@@ -30,7 +38,7 @@ export class PostController {
   @Put(":id") 
   async update(@Param("id") id: string, @Body() postUpdatedDTO: PostUpdatedDTO) {
     postUpdatedDTO.id = Number(id)
-    await this.postRepository.modify(postUpdatedDTO)
+    await this.postService.updatePost(postUpdatedDTO)
   }
 
   // 게시글 삭제
@@ -38,10 +46,7 @@ export class PostController {
   @HttpCode(200)
   @Delete(":id")
   async remove(@Param("id") id: string) {
-    await this.postRepository.remove(Number(id))
+    await this.postService.deletePost(Number(id))
   }
 
 }
-
-// @ApiOperation({summary: "회원 탈퇴"})
-//     @HttpCode(204)

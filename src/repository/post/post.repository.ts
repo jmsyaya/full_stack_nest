@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PostCreateDTO, PostDTO, PostUpdatedDTO } from "src/domain/post/dto/post.dto";
 import { PrismaService } from "src/service/prisma/prisma.service";
 
+// DB 접근 담당
 @Injectable()
 export class PostRepository {
   // Prisma 접근
@@ -52,10 +53,14 @@ export class PostRepository {
     return foundPost;
   }
 
-  // 게시글 추가
+  // 게시글 생성
   async save(postCreateDTO: PostCreateDTO): Promise<void> {
     await this.prisma.post.create({
-      data: postCreateDTO,
+      // data: postCreateDTO,
+      data: {
+        ...postCreateDTO,
+        createdAt: new Date(),
+      }
     });
   }
 
