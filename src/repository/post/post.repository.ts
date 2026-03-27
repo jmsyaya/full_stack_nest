@@ -57,21 +57,13 @@ export class PostRepository {
   async save(postCreateDTO: PostCreateDTO): Promise<void> {
     await this.prisma.post.create({
       // data: postCreateDTO,
-      data: {
-        ...postCreateDTO,
-        createdAt: new Date(),
-      }
+      data: postCreateDTO,
     });
   }
 
   // 게시글 수정
   async modify(postUpdatedDTO: PostUpdatedDTO): Promise<void> {
-    const foundPost = await this.prisma.post.findUnique({
-      where: { id: postUpdatedDTO.id },
-    });
-
-    if (foundPost) {
-      const { id, ...updatedPost } = postUpdatedDTO;
+    const { id, ...updatedPost } = postUpdatedDTO
 
       await this.prisma.post.update({
         where: { id },
@@ -80,7 +72,6 @@ export class PostRepository {
           updatedAt: new Date(),
         },
       });
-    }
   }
 
   // 게시글 삭제
