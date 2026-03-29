@@ -3,6 +3,7 @@ CREATE TABLE `tbl_member` (
     `member_id` INTEGER NOT NULL AUTO_INCREMENT,
     `member_email` VARCHAR(191) NOT NULL,
     `member_name` VARCHAR(191) NOT NULL,
+    `member_nickname` VARCHAR(191) NOT NULL,
     `member_xp` INTEGER NOT NULL DEFAULT 0,
     `member_age` INTEGER NULL,
     `member_address` VARCHAR(191) NULL,
@@ -12,6 +13,7 @@ CREATE TABLE `tbl_member` (
     `member_level` INTEGER NOT NULL DEFAULT 1,
 
     UNIQUE INDEX `tbl_member_member_email_key`(`member_email`),
+    UNIQUE INDEX `tbl_member_member_nickname_key`(`member_nickname`),
     PRIMARY KEY (`member_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -61,7 +63,7 @@ CREATE TABLE `tbl_recipe` (
     `recipe_difficulty` VARCHAR(191) NOT NULL,
     `recipe_xp` INTEGER NOT NULL DEFAULT 0,
     `recipe_created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `recipe_updated_at` DATETIME(3) NULL,
+    `recipe_updated_at` DATETIME(3) NOT NULL,
     `recipe_deleted_at` DATETIME(3) NULL,
     `recipe_category` VARCHAR(191) NULL,
 
@@ -84,11 +86,10 @@ CREATE TABLE `tbl_recipe_ingredient` (
 CREATE TABLE `tbl_ingredient` (
     `ingredient_id` INTEGER NOT NULL AUTO_INCREMENT,
     `ingredient_name` VARCHAR(191) NOT NULL,
-    `ingredient_created_at` DATETIME(3) NULL,
+    `ingredient_created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `ingredient_category` VARCHAR(191) NOT NULL,
     `ingredient_image_url` VARCHAR(191) NULL,
 
-    UNIQUE INDEX `tbl_ingredient_ingredient_name_key`(`ingredient_name`),
     PRIMARY KEY (`ingredient_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -96,10 +97,11 @@ CREATE TABLE `tbl_ingredient` (
 CREATE TABLE `tbl_my_fridge` (
     `fridge_id` INTEGER NOT NULL AUTO_INCREMENT,
     `member_id` INTEGER NOT NULL,
-    `fridge_quantity` VARCHAR(191) NOT NULL,
-    `fridge_expire_date` INTEGER NULL,
-    `fridge_created_at` DATETIME(3) NULL,
-    `fridge_updated_at` DATETIME(3) NULL,
+    `fridgeQuantity` DOUBLE NOT NULL,
+    `unit` VARCHAR(191) NOT NULL,
+    `fridge_expire_date` DATETIME(3) NULL,
+    `fridge_created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `fridge_updated_at` DATETIME(3) NOT NULL,
     `fridge_deleted_at` DATETIME(3) NULL,
     `ingredient_id` INTEGER NOT NULL,
 
@@ -114,7 +116,7 @@ CREATE TABLE `tbl_post` (
     `post_title` VARCHAR(191) NOT NULL,
     `post_content` VARCHAR(191) NOT NULL,
     `post_created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `post_updated_at` DATETIME(3) NULL,
+    `post_updated_at` DATETIME(3) NOT NULL,
     `post_xp` INTEGER NOT NULL DEFAULT 0,
     `recipe_id` INTEGER NOT NULL,
     `post_deleted_at` DATETIME(3) NULL,
@@ -140,7 +142,7 @@ CREATE TABLE `tbl_comment` (
     `post_id` INTEGER NOT NULL,
     `comment_content` VARCHAR(191) NOT NULL,
     `comment_created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `comment_updated_at` DATETIME(3) NULL,
+    `comment_updated_at` DATETIME(3) NOT NULL,
 
     PRIMARY KEY (`comment_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -148,7 +150,7 @@ CREATE TABLE `tbl_comment` (
 -- CreateTable
 CREATE TABLE `tbl_saved_recipe` (
     `saved_recipe_id` INTEGER NOT NULL AUTO_INCREMENT,
-    `saved_recipe_created_at` DATETIME(3) NULL,
+    `saved_recipe_created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `member_id` INTEGER NOT NULL,
     `recipe_id` INTEGER NOT NULL,
 
@@ -159,7 +161,7 @@ CREATE TABLE `tbl_saved_recipe` (
 -- CreateTable
 CREATE TABLE `tbl_post_like` (
     `post_like_id` INTEGER NOT NULL AUTO_INCREMENT,
-    `post_like_created_at` DATETIME(3) NULL,
+    `post_like_created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `member_id` INTEGER NOT NULL,
     `post_id` INTEGER NOT NULL,
 
@@ -170,7 +172,7 @@ CREATE TABLE `tbl_post_like` (
 -- CreateTable
 CREATE TABLE `tbl_post_ingredient_used` (
     `post_ingredient_used_id` INTEGER NOT NULL AUTO_INCREMENT,
-    `post_ingredient_used_created_at` DATETIME(3) NULL,
+    `post_ingredient_used_created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `post_id` INTEGER NOT NULL,
     `ingredient_id` INTEGER NOT NULL,
 
