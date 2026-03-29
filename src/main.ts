@@ -16,7 +16,7 @@ async function bootstrap() {
     // CORS 허용
     app.enableCors({
         origin: ['http://localhost:3000'],
-        methods: ["GET", "PUT", "POST", "DELETE"],
+        methods: ["GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS"],
         credentials: true
     })
 
