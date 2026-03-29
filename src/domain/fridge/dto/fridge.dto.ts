@@ -6,3 +6,9 @@ export class CreateFridgeDto {
   unit: string;
   expireDate?: string; // 프론트에서 string으로 옴
 }
+
+export class UpdateFridgeDto {
+  quantity?: number;
+  unit?: string;
+  expireDate?: string;
+}
