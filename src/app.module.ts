@@ -6,6 +6,7 @@ import { PostModule } from './module/post/post.module';
 import { PrismaModule } from './module/prisma/prisma.module';
 import { FridgeModule } from './module/fridge/fridge.module';
 import { OpenaiModule } from './module/openai/openai.module';
+import { ImageService } from './service/image/image.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { OpenaiModule } from './module/openai/openai.module';
     OpenaiModule
   ],
   controllers: [],
-  providers: [],
+  providers: [ImageService],
 })
 export class AppModule {}
