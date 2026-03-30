@@ -3,10 +3,11 @@ import { PrismaService } from 'src/service/prisma/prisma.service';
 import { OpenaiModule } from '../openai/openai.module';
 import { FridgeController } from 'src/controller/fridge/fridge.controller';
 import { FridgeService } from 'src/service/fridge/fridge.service';
+import { ImageService } from 'src/service/image/image.service';
 
 @Module({
   imports: [OpenaiModule], 
   controllers: [FridgeController],
-  providers: [FridgeService, PrismaService],
+  providers: [FridgeService, PrismaService, ImageService],
 })
 export class FridgeModule {}
