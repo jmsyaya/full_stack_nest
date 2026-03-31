@@ -9,13 +9,13 @@ export class PostService {
   constructor(private readonly postRepository: PostRepository ) {;}
 
   // 게시글 목록 전체 조회
-  async getPosts(): Promise<PostDTO[]> {
+  async getPosts() {
     return await this.postRepository.findPosts()
     // 데이터를 돌려줘야하니 return
   }
 
   // 게시글 단일 조회
-  async getPost(id: number): Promise<PostDTO> {
+  async getPost(id: number) {
     const foundPost =  await this.postRepository.findPostById(id)
 
     if(!foundPost) {
@@ -32,14 +32,14 @@ export class PostService {
   }
 
   // 게시글 수정
-  async updatePost(postUpdatedDTO: PostUpdatedDTO): Promise<void> {
-    const foundPost = await this.postRepository.findPostById(postUpdatedDTO.id)
+  async updatePost(id: number, postUpdatedDTO: PostUpdatedDTO): Promise<void> {
+    const foundPost = await this.postRepository.findPostById(id)
 
     if(!foundPost){
       throw new PostException("수정할 게시글이 없습니다.")
     }
 
-    await this.postRepository.modify(postUpdatedDTO)
+    await this.postRepository.modify(id, postUpdatedDTO)
   }
 
   // 게시글 삭제

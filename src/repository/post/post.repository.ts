@@ -9,7 +9,7 @@ export class PostRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   // 게시글 목록 전체 조회
-  async findPosts(): Promise<PostDTO[]> {
+  async findPosts() {
     const foundPosts = await this.prisma.post.findMany({
       include: {
         member: {
@@ -31,7 +31,7 @@ export class PostRepository {
   }
 
   // 게시글 단일 조회
-  async findPostById(id: number): Promise<PostDTO | null> {
+  async findPostById(id: number) {
     const foundPost = await this.prisma.post.findUnique({
       where: { id },
       include: {
@@ -62,13 +62,11 @@ export class PostRepository {
   }
 
   // 게시글 수정
-  async modify(postUpdatedDTO: PostUpdatedDTO): Promise<void> {
-    const { id, ...updatedPost } = postUpdatedDTO
-
+  async modify(id:number, postUpdatedDTO: PostUpdatedDTO): Promise<void> {
       await this.prisma.post.update({
         where: { id },
         data: {
-          ...updatedPost,
+          ...postUpdatedDTO,
           updatedAt: new Date(),
         },
       });
