@@ -7,6 +7,10 @@ import { PrismaModule } from './module/prisma/prisma.module';
 import { FridgeModule } from './module/fridge/fridge.module';
 import { OpenaiModule } from './module/openai/openai.module';
 import { ImageService } from './service/image/image.service';
+import { PostlikeController } from './controller/postlike/postlike.controller';
+import { PostlikeService } from './service/postlike/postlike.service';
+import { PostlikeModule } from './module/postlike/postlike.module';
+import { PostLikeRepository } from './repository/postlike/postlike.repository';
 
 @Module({
   imports: [
@@ -16,9 +20,10 @@ import { ImageService } from './service/image/image.service';
     PostModule,
     PrismaModule,
     FridgeModule,
-    OpenaiModule
+    OpenaiModule,
+    PostlikeModule
   ],
-  controllers: [],
-  providers: [ImageService],
+  controllers: [PostlikeController],
+  providers: [ImageService, PostlikeService, PostLikeRepository],
 })
 export class AppModule {}
