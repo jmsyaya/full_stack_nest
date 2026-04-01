@@ -1,31 +1,62 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { CreateFridgeDto, UpdateFridgeDto } from 'src/domain/fridge/dto/fridge.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  CreateFridgeDto,
+  UpdateFridgeDto,
+} from 'src/domain/fridge/dto/fridge.dto';
 import { FridgeService } from 'src/service/fridge/fridge.service';
 
 @Controller('fridge')
 export class FridgeController {
   constructor(private readonly fridgeService: FridgeService) {}
 
-  @Get('recommend/:memberId')
-  recommendRecipe(@Param('memberId') memberId: string) {
-    return this.fridgeService.recommendRecipe(Number(memberId));
+  // @UseGuards(AuthGuard('jwt'))
+  @Get('/recommend')
+  recommend(@Req() req) {
+    // const memberId = req.user.id; // jwt.strategy 만들어진 이후에 밑줄 삭제 및 이 줄 활성화
+    const memberId = 1;
+
+    return this.fridgeService.recommendRecipe(memberId);
   }
 
+  // @UseGuards(AuthGuard('jwt'))
   @Post()
-  create(@Body() dto: CreateFridgeDto) {
-    return this.fridgeService.create(dto);
+  create(@Req() req, @Body() dto: CreateFridgeDto) {
+    // const memberId = req.user.id; // jwt.strategy 만들어진 이후에 밑줄 삭제 및 이 줄 활성화
+    const memberId = 1;
+
+    return this.fridgeService.create({
+      ...dto,
+      memberId,
+    });
   }
 
-  @Get(':memberId')
-  findAll(@Param('memberId') memberId: string) {
-    return this.fridgeService.findAll(Number(memberId));
+  // @UseGuards(AuthGuard('jwt'))
+  @Get()
+  findAll(@Req() req) {
+    // const memberId = req.user.id; // jwt.strategy 만들어진 이후에 밑줄 삭제 및 이 줄 활성화
+    const memberId = 1;
+
+    return this.fridgeService.findAll(memberId);
   }
 
+  // @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateFridgeDto) {
     return this.fridgeService.update(Number(id), dto);
   }
 
+  // @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.fridgeService.remove(Number(id));

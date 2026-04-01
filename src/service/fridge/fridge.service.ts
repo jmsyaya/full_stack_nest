@@ -130,7 +130,7 @@ export class FridgeService {
   }
 
   // =========================
-  // 🔥 추천 (최종 완성)
+  // 추천 (최종 완성)
   // =========================
   async recommendRecipe(memberId: number) {
     const getRandomIngredients = (items: any[], count: number) => {
