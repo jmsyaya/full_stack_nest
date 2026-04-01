@@ -13,7 +13,7 @@ export class MemberRepository {
     async save(member:MemberRegisterDTO):Promise<MemberEntity>{
         const memberCreate = {
             memberEmail: member.memberEmail,
-            memberNickName: member.memberName ?? null,
+            memberNickname: member.memberName ?? null,
             memberName: member.memberName,
             memberAge: member.memberAge,
             memberAddress: member.memberAddress,
@@ -27,7 +27,7 @@ export class MemberRepository {
             memberPassword: member.memberPassword
         }
 
-        return await this.prisma.member.create({
+        const result = await this.prisma.member.create({
             data: {
                 ...memberCreate,
                 socials: {
@@ -37,7 +37,11 @@ export class MemberRepository {
             include: {
                 socials: true
             }
-        })
+        });
+
+        console.log(`✅ 새 회원 가입 성공: ${result.memberEmail} (${result.memberNickname})`);
+
+        return result;
     }
 
     // 회원 전체 조회
