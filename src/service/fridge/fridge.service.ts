@@ -15,12 +15,38 @@ export class FridgeService {
     private readonly imageService: ImageService,
   ) {}
 
+
+  // =========================
+  // 🔴 테스트 유저 생성을 위한 함수 추가
+  // =========================
+  async ensureMember(memberId: number) {
+  let member = await this.prisma.member.findUnique({
+    where: { id: memberId },
+  });
+
+  if (!member) {
+    member = await this.prisma.member.create({
+      data: {
+        id: memberId,
+        memberEmail: `test${memberId}@test.com`,
+        memberName: `테스트유저${memberId}`,
+      },
+    });
+  }
+
+  return member;
+}
+
   // =========================
   // 생성
   // =========================
   async create(dto: CreateFridgeDto) {
     const { memberId, ingredientName, category, quantity, unit, expireDate } =
       dto;
+
+    // 🔴 테스트 유저 JWT 완성되면 밑에 한 줄 삭제
+    await this.ensureMember(memberId);
+
 
     let ingredient = await this.prisma.ingredient.findFirst({
       where: { ingredientName },
@@ -69,6 +95,10 @@ export class FridgeService {
   // 조회
   // =========================
   async findAll(memberId: number) {
+
+    // 🔴 테스트 유저 JWT 완성되면 밑에 한 줄 삭제 
+    await this.ensureMember(memberId);
+
     const data = await this.prisma.myFridge.findMany({
       where: { memberId },
       include: {
@@ -128,6 +158,8 @@ export class FridgeService {
       where: { id },
     });
   }
+
+
 
   // =========================
   // 추천 (최종 완성)
