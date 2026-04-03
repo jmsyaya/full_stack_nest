@@ -15,7 +15,7 @@ export class PostlikeService {
     const existingLike = await this.postlikeRepository.findPostLike(memberId, postId)
 
     if(existingLike){
-      throw new PostLikeException("좋아요가 없습니다.")
+      throw new PostLikeException("이미 좋아요를 눌렀습니다.")
     } 
     return this.postlikeRepository.createPostLike(memberId, postId)
   }
