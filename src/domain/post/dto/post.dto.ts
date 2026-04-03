@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { isNumber, IsNumber, IsOptional, IsString } from "class-validator";
 import { Type } from "class-transformer"
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -13,7 +13,7 @@ export class PostDTO {
   member: {
     id: number;
     memberName: string;
-  } // member relation 객체
+  } // 이게 memberId임
 
   @ApiProperty({ example: "첫 번째 게시글", description: "게시글 제목"})
   @IsString()
@@ -30,7 +30,7 @@ export class PostDTO {
   @ApiProperty({ example: "2026-03-23T09:00:00.000Z", description: "게시글 수정일", required: false, nullable: true })
   @IsOptional()
   @Type(() => Date)
-  updatedAt: Date | null;
+  updatedAt?: Date;
 
   @ApiProperty({ example: 10, description: "획득 XP"})
   @IsNumber()
@@ -40,12 +40,12 @@ export class PostDTO {
   recipe: {
     id: number;
     recipeTitle: string;
-  } // recipe relation 객체
+  } // recipeId: number;
   
   @ApiProperty({ example: "2026-03-23T09:00:00.000Z", description: "게시글 삭제일", required: false, nullable: true })
   @IsOptional()
   @Type(() => Date)
-  deletedAt: Date | null;
+  deletedAt?: Date;
 
 }
 
@@ -59,7 +59,6 @@ export class PostCreateDTO {
     "인증 레시피 아이디"
   })
   @Type(() => Number)
-  @IsNumber()
   recipeId: number;
 
   @ApiProperty({ example: "첫 번째 게시글", description: "게시글 제목" })
@@ -73,11 +72,6 @@ export class PostCreateDTO {
 }
 
 export class PostUpdatedDTO {
-  @ApiProperty({ example: 1, description: "수정할 게시글 아이디" })
-  @Type(() => Number)
-  @IsNumber()
-  id: number;
-
   @ApiProperty({ example: "수정된 제목", description: "게시글 제목", required: false })
   @IsOptional()
   @IsString()

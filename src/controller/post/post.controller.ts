@@ -37,8 +37,7 @@ export class PostController {
   @HttpCode(200)
   @Put(":id") 
   async update(@Param("id") id: string, @Body() postUpdatedDTO: PostUpdatedDTO) {
-    postUpdatedDTO.id = Number(id)
-    await this.postService.updatePost(postUpdatedDTO)
+    await this.postService.updatePost(Number(id), postUpdatedDTO)
   }
 
   // 게시글 삭제
