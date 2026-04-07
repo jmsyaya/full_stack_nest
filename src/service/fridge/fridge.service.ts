@@ -15,27 +15,26 @@ export class FridgeService {
     private readonly imageService: ImageService,
   ) {}
 
-
   // =========================
   // 🔴 테스트 유저 생성을 위한 함수 추가
   // =========================
   async ensureMember(memberId: number) {
-  let member = await this.prisma.member.findUnique({
-    where: { id: memberId },
-  });
-
-  if (!member) {
-    member = await this.prisma.member.create({
-      data: {
-        id: memberId,
-        memberEmail: `test${memberId}@test.com`,
-        memberName: `테스트유저${memberId}`,
-      },
+    let member = await this.prisma.member.findUnique({
+      where: { id: memberId },
     });
-  }
 
-  return member;
-}
+    if (!member) {
+      member = await this.prisma.member.create({
+        data: {
+          id: memberId,
+          memberEmail: `test${memberId}@test.com`,
+          memberName: `테스트유저${memberId}`,
+        },
+      });
+    }
+
+    return member;
+  }
 
   // =========================
   // 생성
@@ -46,7 +45,6 @@ export class FridgeService {
 
     // 🔴 테스트 유저 JWT 완성되면 밑에 한 줄 삭제
     await this.ensureMember(memberId);
-
 
     let ingredient = await this.prisma.ingredient.findFirst({
       where: { ingredientName },
@@ -95,8 +93,7 @@ export class FridgeService {
   // 조회
   // =========================
   async findAll(memberId: number) {
-
-    // 🔴 테스트 유저 JWT 완성되면 밑에 한 줄 삭제 
+    // 🔴 테스트 유저 JWT 완성되면 밑에 한 줄 삭제
     await this.ensureMember(memberId);
 
     const data = await this.prisma.myFridge.findMany({
@@ -159,8 +156,6 @@ export class FridgeService {
     });
   }
 
-
-
   // =========================
   // 추천 (최종 완성)
   // =========================
@@ -175,10 +170,15 @@ export class FridgeService {
       include: { ingredient: true },
     });
 
+    // 주재료만 필터링
+    const mainCandidates = fridgeItems.filter((item) =>
+      ['육류', '해산물', '채소'].includes(item.ingredient.ingredientCategory),
+    );
+
     // 랜덤 3개 선택
     const randomItems = getRandomIngredients(
-      fridgeItems,
-      Math.min(3, fridgeItems.length),
+      mainCandidates,
+      Math.min(3, mainCandidates.length),
     );
 
     // 선택된 것만 사용
@@ -221,17 +221,33 @@ export class FridgeService {
     }
 
     const recipeText = parsed.recipe || '';
-    const ingredientList =
-      (parsed.ingredients || []).length > 0
-        ? parsed.ingredients.map((name: string) => {
-            const found = ingredients.find((i) => name.includes(i.name));
+    let ingredientList: any[] = [];
 
-            return {
-              name,
-              category: found?.category || '기타',
-            };
-          })
-        : ingredients;
+    if (parsed.ingredients && parsed.ingredients.length > 0) {
+      ingredientList = parsed.ingredients.map((item: any) => {
+        // GPT가 이상하게 줄 경우 대비
+        if (typeof item === 'string') {
+          return {
+            name: item,
+            category: '기타',
+          };
+        }
+
+        return {
+          name: item.name,
+          category: item.category || '기타',
+        };
+      });
+    } else {
+      ingredientList = ingredients;
+    }
+
+    // GPT가 재료 누락했으면 강제로 추가
+    ingredients.forEach((i) => {
+      if (!ingredientList.some((item) => item.name.includes(i.name))) {
+        ingredientList.push(i);
+      }
+    });
 
     // =========================
     // 3. 대표 이미지

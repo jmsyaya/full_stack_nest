@@ -12,30 +12,38 @@ export class OpenaiService {
   // =========================
   async getRecipe(ingredients: string[]): Promise<string> {
     const prompt = `
-다음 재료로 만들 수 있는 요리를 하나 추천해줘.
+다음 재료를 반드시 모두 포함해서 요리를 만들어라:
 
-재료:
-${ingredients.join(', ')}
+${ingredients.map((i) => `- ${i}`).join('\n')}
 
-! 반드시 아래 JSON 형식으로만 답변해 (설명 절대 추가 금지)
+🔥 규칙:
+1. 위 재료는 반드시 전부 사용해야 한다
+2. 각 재료는 아래 형식으로 반환해야 한다:
+   { "name": "재료명", "category": "육류/해산물/채소/기타" }
+3. category는 반드시 정확히 지정해야 한다
+4. 임의로 재료를 제거하거나 바꾸지 마라
+
+반드시 JSON 형식으로만 응답:
 
 {
   "title": "요리 이름",
-  "ingredients": ["추가 재료1", "추가 재료2"],
-  "recipe": "조리 방법을 단계별로 자세히 작성 (1. 2. 3. 형식)"
+  "ingredients": [
+    { "name": "재료명", "category": "채소" }
+  ],
+  "recipe": "1. ... 2. ... 3. ..."
 }
 `;
 
     const response = await this.openai.chat.completions.create({
-      model: "gpt-4.1-mini",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
+      model: 'gpt-4.1-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3,
     });
 
     const content = response.choices[0].message.content;
     const jsonMatch = content?.match(/\{[\s\S]*\}/);
 
-    return jsonMatch ? jsonMatch[0] : content || "";
+    return jsonMatch ? jsonMatch[0] : content || '';
   }
 
   // =========================
@@ -57,15 +65,15 @@ ${ingredients.join(', ')}
 ["frying pork belly", "chopping onion", "kimchi fried rice", "plating dish"]
 
 steps:
-${steps.map((s, i) => `${i + 1}. ${s}`).join("\n")}
+${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}
 
 반드시 JSON 배열로만 답변:
 ["keyword1", "keyword2", "keyword3"]
 `;
 
     const response = await this.openai.chat.completions.create({
-      model: "gpt-4.1-mini",
-      messages: [{ role: "user", content: prompt }],
+      model: 'gpt-4.1-mini',
+      messages: [{ role: 'user', content: prompt }],
       temperature: 0.3, // 안정성 + 다양성 균형
     });
 
@@ -89,11 +97,11 @@ ${steps.map((s, i) => `${i + 1}. ${s}`).join("\n")}
     // fallback 개선 (중요)
     // =========================
     const fallbackKeywords = [
-      "korean food cooking",
-      "stir fry korean food",
-      "fried rice cooking",
-      "korean dish plating",
-      "home cooking meal"
+      'korean food cooking',
+      'stir fry korean food',
+      'fried rice cooking',
+      'korean dish plating',
+      'home cooking meal',
     ];
 
     let i = 0;
