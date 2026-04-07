@@ -11,6 +11,9 @@ import { PostlikeController } from './controller/postlike/postlike.controller';
 import { PostlikeService } from './service/postlike/postlike.service';
 import { PostlikeModule } from './module/postlike/postlike.module';
 import { PostLikeRepository } from './repository/postlike/postlike.repository';
+import { AisavedrecipeService } from './service/aisavedrecipe/aisavedrecipe.service';
+import { AisavedrecipeController } from './controller/aisavedrecipe/aisavedrecipe.controller';
+import { AisavedrecipeModule } from './module/aisavedrecipe/aisavedrecipe.module';
 
 @Module({
   imports: [
@@ -21,9 +24,10 @@ import { PostLikeRepository } from './repository/postlike/postlike.repository';
     PrismaModule,
     FridgeModule,
     OpenaiModule,
-    PostlikeModule
+    PostlikeModule,
+    AisavedrecipeModule
   ],
-  controllers: [PostlikeController],
-  providers: [ImageService, PostlikeService, PostLikeRepository],
+  controllers: [PostlikeController, AisavedrecipeController],
+  providers: [ImageService, PostlikeService, PostLikeRepository, AisavedrecipeService],
 })
 export class AppModule {}
