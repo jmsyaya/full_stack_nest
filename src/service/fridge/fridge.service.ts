@@ -160,138 +160,155 @@ export class FridgeService {
   // 추천 (최종 완성)
   // =========================
   async recommendRecipe(memberId: number) {
-    const getRandomIngredients = (items: any[], count: number) => {
-      const shuffled = [...items].sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, count);
-    };
+  const getRandomIngredients = (items: any[], count: number) => {
+    const shuffled = [...items].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, count);
+  };
 
-    const fridgeItems = await this.prisma.myFridge.findMany({
-      where: { memberId },
-      include: { ingredient: true },
-    });
+  const fridgeItems = await this.prisma.myFridge.findMany({
+    where: { memberId },
+    include: { ingredient: true },
+  });
 
-    // 주재료만 필터링
-    const mainCandidates = fridgeItems.filter((item) =>
-      ['육류', '해산물', '채소'].includes(item.ingredient.ingredientCategory),
-    );
+  // 주재료만 필터링
+  const mainCandidates = fridgeItems.filter((item) =>
+    ['육류', '해산물', '채소'].includes(item.ingredient.ingredientCategory),
+  );
 
-    // 랜덤 3개 선택
-    const randomItems = getRandomIngredients(
-      mainCandidates,
-      Math.min(3, mainCandidates.length),
-    );
+  // 랜덤 3개 선택
+  const randomItems = getRandomIngredients(
+    mainCandidates,
+    Math.min(3, mainCandidates.length),
+  );
 
-    // 선택된 것만 사용
-    const ingredients = randomItems.map((item) => ({
-      name: item.ingredient.ingredientName,
-      category: item.ingredient.ingredientCategory,
-    }));
+  // 선택된 것만 사용
+  const ingredients = randomItems.map((item) => ({
+    name: item.ingredient.ingredientName,
+    category: item.ingredient.ingredientCategory,
+  }));
 
-    // =========================
-    // 1. OpenAI 호출
-    // =========================
-    const aiResponse = await this.openaiService.getRecipe(
-      ingredients.map((i) => i.name),
-    );
+  // =========================
+  // 1. OpenAI 호출
+  // =========================
+  const aiResponse = await this.openaiService.getRecipe(
+    ingredients.map((i) => i.name),
+  );
 
-    if (!aiResponse) {
-      return {
-        title: '추천 요리',
-        ingredients: [],
-        recipe: '레시피를 생성할 수 없습니다.',
-        image: '',
-        steps: [],
-        stepImages: [],
-      };
-    }
-
-    // =========================
-    // 2. JSON 파싱
-    // =========================
-    let parsed;
-
-    try {
-      parsed = JSON.parse(aiResponse);
-    } catch (e) {
-      parsed = {
-        title: '추천 요리',
-        ingredients: [],
-        recipe: aiResponse,
-      };
-    }
-
-    const recipeText = parsed.recipe || '';
-    let ingredientList: any[] = [];
-
-    if (parsed.ingredients && parsed.ingredients.length > 0) {
-      ingredientList = parsed.ingredients.map((item: any) => {
-        // GPT가 이상하게 줄 경우 대비
-        if (typeof item === 'string') {
-          return {
-            name: item,
-            category: '기타',
-          };
-        }
-
-        return {
-          name: item.name,
-          category: item.category || '기타',
-        };
-      });
-    } else {
-      ingredientList = ingredients;
-    }
-
-    // GPT가 재료 누락했으면 강제로 추가
-    ingredients.forEach((i) => {
-      if (!ingredientList.some((item) => item.name.includes(i.name))) {
-        ingredientList.push(i);
-      }
-    });
-
-    // =========================
-    // 3. 대표 이미지
-    // =========================
-    const image = await this.imageService.getFoodImage(
-      'korean food ' + parsed.title,
-    );
-
-    // =========================
-    // 4. Step 분리
-    // =========================
-    const steps = recipeText.split(/\d+\.\s/).filter((s) => s.trim() !== '');
-
-    // =========================
-    // 5. GPT로 step 키워드 생성
-    // =========================
-    const keywords = await this.openaiService.getStepKeywords(steps);
-
-    // =========================
-    // 6. step 이미지 생성
-    // =========================
-    const stepImages = await Promise.all(
-      keywords.map((keyword) =>
-        this.imageService.getFoodImage(`${keyword} food`),
-      ),
-    );
-
-    // =========================
-    // 7. fallback 처리
-    // =========================
-    while (stepImages.length < steps.length) {
-      stepImages.push(image);
-    }
-
-    // =========================
-    // 8. 최종 반환
-    // =========================
+  if (!aiResponse) {
     return {
-      title: parsed.title,
-      ingredients: ingredientList,
-      recipe: recipeText,
-      image,
-      steps,
-      stepImages,
+      title: '추천 요리',
+      ingredients: [],
+      recipe: '레시피를 생성할 수 없습니다.',
+      image: '',
+      steps: [],
+      stepImages: [],
     };
   }
+
+  // =========================
+  // 2. JSON 파싱
+  // =========================
+  let parsed;
+
+  try {
+    parsed = JSON.parse(aiResponse);
+  } catch (e) {
+    parsed = {
+      title: '추천 요리',
+      ingredients: [],
+      recipe: aiResponse,
+    };
+  }
+
+  const recipeText = parsed.recipe || '';
+  let ingredientList: any[] = [];
+
+  // =========================
+  // 3. ingredients 파싱 (안전 처리)
+  // =========================
+  if (parsed.ingredients && parsed.ingredients.length > 0) {
+    ingredientList = parsed.ingredients.map((item: any) => {
+      if (typeof item === 'string') {
+        return {
+          name: item,
+          category: '기타',
+        };
+      }
+
+      return {
+        name: typeof item.name === 'string' ? item.name : '',
+        category: item.category || '기타',
+      };
+    });
+  } else {
+    ingredientList = ingredients;
+  }
+
+  // =========================
+  // 🔥 4. GPT 누락 재료 보정 (최종 안정화)
+  // =========================
+  ingredients.forEach((i) => {
+    const exists = ingredientList.some((item) => {
+      const itemName =
+        typeof item.name === 'string' ? item.name : '';
+
+      const iName =
+        typeof i.name === 'string' ? i.name : '';
+
+      return (
+        itemName.includes(iName) ||
+        iName.includes(itemName)
+      );
+    });
+
+    if (!exists) {
+      ingredientList.push(i);
+    }
+  });
+
+  // =========================
+  // 5. 대표 이미지
+  // =========================
+  const image = await this.imageService.getFoodImage(
+    'korean food ' + parsed.title,
+  );
+
+  // =========================
+  // 6. Step 분리
+  // =========================
+  const steps = recipeText.split(/\d+\.\s/).filter((s) => s.trim() !== '');
+
+  // =========================
+  // 7. GPT step 키워드 생성
+  // =========================
+  const keywords = await this.openaiService.getStepKeywords(steps);
+
+  // =========================
+  // 8. step 이미지 생성
+  // =========================
+  const stepImages = await Promise.all(
+    keywords.map((keyword) =>
+      this.imageService.getFoodImage(`${keyword} food`),
+    ),
+  );
+
+  // =========================
+  // 9. fallback 처리
+  // =========================
+  while (stepImages.length < steps.length) {
+    stepImages.push(image);
+  }
+
+  // =========================
+  // 10. 최종 반환
+  // =========================
+  return {
+    title: parsed.title,
+    ingredients: ingredientList,
+    recipe: recipeText,
+    image,
+    steps,
+    stepImages,
+  };
+}
 }
