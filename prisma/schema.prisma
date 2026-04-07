@@ -262,6 +262,11 @@ model AiSavedRecipe {
   description String?
   imageUrl    String?
 
+  cookTime    Int?     @map("cook_time")
+  difficulty  String?  @map("difficulty")
+  category    String?  @map("category")
+  xp          Int      @default(0) @map("xp")
+
   ingredients Json
   steps       Json
 
