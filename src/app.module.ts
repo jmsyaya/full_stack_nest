@@ -27,7 +27,7 @@ import { AisavedrecipeModule } from './module/aisavedrecipe/aisavedrecipe.module
     PostlikeModule,
     AisavedrecipeModule
   ],
-  controllers: [PostlikeController, AisavedrecipeController],
-  providers: [ImageService, PostlikeService, PostLikeRepository, AisavedrecipeService],
+  controllers: [],
+  providers: [ImageService ],
 })
 export class AppModule {}
