@@ -55,9 +55,27 @@ export class AisavedrecipeService {
       difficulty: savedRecipe.difficulty ?? undefined,
       category: savedRecipe.category ?? undefined,
       xp: savedRecipe.xp,
+      ingredients: savedRecipe.ingredients as {
+        main: string[]
+        sub: string[]
+      },
+      steps: savedRecipe.steps as string[],
       createdAt: savedRecipe.createdAt, 
     }
   }
 
   // 삭제
+  async deleteAiSavedRecipe(id: number) {
+    const savedRecipe = await this.aisavedrecipeRepository.findById(id)
+
+    if(!savedRecipe) {
+      throw new AiSavedRecipeException("삭제할 AI 저장 레시피가 없습니다.")
+    }
+
+    await this.aisavedrecipeRepository.remove(id)
+
+    return {
+      message: 'AI 저장 레시피 삭제 완료'
+    }
+  }
 }

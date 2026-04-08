@@ -36,6 +36,7 @@ export class AiSavedRecipeListResponseDTO {
 // 저장한 레시피 응답
 export class AiSavedRecipeResponseDTO {
   id: number
+  memberId: number
   title: string
   description?: string
   imageUrl?: string
@@ -45,11 +46,11 @@ export class AiSavedRecipeResponseDTO {
   category?: string
   xp?: number
 
-  ingredients: {
+  ingredients?: {
     main: string[]
     sub: string[]
   }
 
-  steps: string[]
+  steps?: string[]
   createdAt: Date
 }

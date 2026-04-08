@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { retry } from "rxjs";
 import { CreateAiSavedRecipeDTO } from "src/domain/aisavedrecipe/dto/aisavedrecipe.dto";
 import { PrismaService } from "src/service/prisma/prisma.service";
 
