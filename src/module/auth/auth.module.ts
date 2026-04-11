@@ -17,9 +17,9 @@ import { NaverStrategy } from './strategy/naver.strategy';
     providers: [
         AuthService,
         LocalStrategy,
-        // GoogleStrategy,
-        // KakaoStrategy,
-        // NaverStrategy
+        GoogleStrategy,
+        KakaoStrategy,
+        NaverStrategy
     ],
     controllers: [AuthController],
     exports: [AuthService]
